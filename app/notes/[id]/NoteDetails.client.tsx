@@ -1,13 +1,7 @@
-// // /*Компонент: Клієнтський ('use client'.Працює в парі з SSR-компонентом page.tsx
-// //  Що робить: Отримання ID з URL
-// //  Запит даних
-// //  Показує стан завантаження через лоадинг
-// //  Стан помилки
-// //  Відображає деталі нотатки*/
+/* клієнтський React-компонент NoteDetailsClient, який за параметром id з URL завантажує нотатку через react-query (функція fetchNoteById), відображає стан завантаження, помилки або деталі нотатки з датою оновлення чи створення, використовуючи стилі з CSS-модуля.*/
 
 'use client';
-// import { fetchNotes } from '@/lib/api';
-// import { useEffect } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { fetchNoteById } from '@/lib/api';
@@ -19,17 +13,6 @@ export default function NoteDetailsClient() {
   // виконання вимоги: перевести  параметр id з рядка у число,
   const idNumber = id ? Number(id) : NaN;
   const isValidId = !isNaN(idNumber);
-
-  //  всі нотатки для перегляду id(перевіряю на викликах)- перевірка
-  // useEffect(() => {
-  //   async function showNotesList() {
-  //     const { notes } = await fetchNotes();
-  //     console.log('Список нотаток для тесту:');
-  //     notes.forEach((note) => console.log(` ${note.id} — ${note.title}`));
-  //   }
-
-  //   showNotesList();
-  // }, []);
 
   const {
     data: note,
@@ -52,8 +35,10 @@ export default function NoteDetailsClient() {
   if (!note) return <p>Note not found.</p>;
 
   const formattedDate = note.updatedAt
-    ? ` Updated: ${new Date(note.updatedAt).toLocaleString()}`
-    : `Created: ${new Date(note.createdAt).toLocaleString()}`;
+    ? `Updated: ${new Date(note.updatedAt).toLocaleString()}`
+    : note.createdAt
+      ? `Created: ${new Date(note.createdAt).toLocaleString()}`
+      : 'Date not available';
 
   return (
     <div className={css.container}>

@@ -1,14 +1,4 @@
-// /*Це клієнтський компонент, який реалізує повну логіку для сторінки /notes, зокрема:
-// Пошук
-// Пагінацію
-// Отримання данних
-// Лоадер
-// Обробляє помилки запиту
-// Відображає нотаток
-// Повідомляє про відсутність результату
-// Створення нототка через модалку
-// Закриття модалки через ESC
-// */
+/*клієнтський React-компонент NotesClient, який реалізує інтерфейс для перегляду, пошуку, пагінації та створення нотаток. Він завантажує список нотаток з сервера з урахуванням сторінки, пошукового запиту і тегу, показує індикатор завантаження, обробляє помилки, відкриває форму створення нотатки у модальному вікні та підтримує debounce для пошуку.*/
 
 'use client';
 
@@ -23,15 +13,19 @@ import Modal from '@/components/Modal/Modal';
 import Pagination from '@/components/Pagination/Pagination';
 import Loader from '@/components/Loader/Loader';
 import css from './page.module.css';
+import { Tag } from '@/lib/api'; // або звідки у тебе оголошений тип
 
 const PER_PAGE = 10;
 const MIN_LOADING_TIME = 100;
 
 interface NotesClientProps {
-  initialNotes: FetchNotesResponse;
+  initialNotes?: FetchNotesResponse;
+  tag: Tag | null;
+  tags?: string[];
+  notes?: string;
 }
 
-export default function Notes({ initialNotes }: NotesClientProps) {
+export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,19 +40,21 @@ export default function Notes({ initialNotes }: NotesClientProps) {
     FetchNotesResponse,
     Error
   >({
-    queryKey: ['notes', currentPage, searchQuery],
+    queryKey: ['notes', currentPage, searchQuery, tag],
     queryFn: () =>
       fetchNotes({
         page: currentPage,
         perPage: PER_PAGE,
         search: searchQuery,
+        tag: tag ?? undefined,
       }),
     placeholderData: keepPreviousData,
-    staleTime: 1000 * 60,
+    staleTime: 60 * 1000,
     initialData:
       currentPage === 1 && searchQuery === '' ? initialNotes : undefined,
   });
 
+  // Мінімальний час відображення лоадера
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
@@ -75,10 +71,12 @@ export default function Notes({ initialNotes }: NotesClientProps) {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  // Закриття модалки по Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
     };
+
     if (isModalOpen) {
       window.addEventListener('keydown', handleKeyDown);
     }
@@ -91,7 +89,6 @@ export default function Notes({ initialNotes }: NotesClientProps) {
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
-
         {!showLoader && isSuccess && data?.totalPages > 1 && (
           <Pagination
             pageCount={data.totalPages}
@@ -99,33 +96,27 @@ export default function Notes({ initialNotes }: NotesClientProps) {
             onPageChange={handlePageChange}
           />
         )}
-
         <button className={css.button} onClick={openModal}>
           Create Note +
         </button>
       </header>
 
-      <>
-        {showLoader && <Loader message="Interesting notes...." />}
-
-        {!showLoader && isError && (
-          <Loader
-            message="There was a pardon for the enchanted notes"
-            color="#D62727"
-          />
+      {showLoader && <Loader message="Interesting notes..." />}
+      {!showLoader && isError && (
+        <Loader
+          message="There was a problem loading the enchanted notes"
+          color="#D62727"
+        />
+      )}
+      {!showLoader && isSuccess && data?.notes.length > 0 && (
+        <NoteList notes={data.notes} />
+      )}
+      {!showLoader &&
+        isSuccess &&
+        data?.notes.length === 0 &&
+        searchQuery.trim() !== '' && (
+          <p className={css.noResults}>Notation not found after the search</p>
         )}
-
-        {!showLoader && isSuccess && data?.notes.length > 0 && (
-          <NoteList notes={data.notes} />
-        )}
-
-        {!showLoader &&
-          isSuccess &&
-          data?.notes.length === 0 &&
-          searchQuery.trim() !== '' && (
-            <p className={css.noResults}>Notation not found after the search</p>
-          )}
-      </>
 
       {isModalOpen && (
         <Modal onClose={closeModal}>

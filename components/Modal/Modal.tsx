@@ -1,52 +1,45 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import css from './Modal.module.css';
+/* клієнтський React-компонент Modal, який відображає модальне вікно з затемненим фоном, показує переданий вміст (children) і має кнопку для закриття, що повертає користувача на попередню сторінку за допомогою навігації Next.js.*/
 
-//Пропси модалки
-interface ModalProps {
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+type Props = {
   children: React.ReactNode;
-  onClose: () => void;
-}
+  onClose?: () => void;
+};
 
-export default function Modal({ children, onClose }: ModalProps) {
-  //Отримую елемент в який буде "вмонтовано" модалку
-  const modalRoot = document.getElementById('modal-root');
+const Modal = ({ children }: Props) => {
+  const router = useRouter();
 
-  if (!modalRoot) {
-    throw new Error('Елемент з id="modal-root" не знайдено в DOM.');
-  }
+  const close = () => router.back();
 
-  // Обробник кліку по фону модалки
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      onClose();
-    }
-  };
-  // Обробник натискання клавіші Escape
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
-
-  // Очищення після демонтажу компонента
-  return createPortal(
+  return (
     <div
-      className={css.backdrop}
-      role="dialog"
-      aria-modal="true"
-      onClick={handleBackdropClick}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+      }}
     >
-      <div className={css.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        style={{
+          background: 'white',
+          padding: '1rem',
+          borderRadius: '8px',
+          maxWidth: '500px',
+          width: '100%',
+        }}
+      >
         {children}
+        <button onClick={close}>Close</button>
       </div>
-    </div>,
-    modalRoot,
+    </div>
   );
-}
+};
+
+export default Modal;

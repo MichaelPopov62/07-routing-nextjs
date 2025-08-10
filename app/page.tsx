@@ -3,7 +3,7 @@
 Виконує функцію інформаційної домашньої сторінки
 Не містить логіки взаємодії */
 
-import css from './notes/page.module.css';
+import css from './notes/filter/[...slug]/page.module.css';
 
 export default function HomePage() {
   return (

@@ -1,7 +1,4 @@
-/*Серверний компонент
-Використовується один раз на весь застосунок.
- Спільна оболонка для всіх сторінок
-Віна обгортає усі сторінки в провайдер */
+/* глобальний лейаут Next.js, який задає структуру HTML сторінки, підключає шрифти, стилі, обгортає контент у провайдера TanStackProvider, і містить заголовок (Header), основний контент (children), модальні вікна (modal) та підвал (Footer).*/
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -27,8 +24,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -36,8 +35,8 @@ export default function RootLayout({
         <TanStackProvider>
           <Header />
           {children}
+          {modal}
           <Footer />
-          <div id="modal-root"></div>
         </TanStackProvider>
       </body>
     </html>

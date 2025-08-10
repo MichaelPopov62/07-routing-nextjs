@@ -1,5 +1,4 @@
-/*Компонент який показує список нотаток і дозволяє видаляти кожну з них.
-Після видалення кеш оновлюється, щоб показати актуальні дані.*/
+/*  React-компонент NoteList, який відображає список нотаток із можливістю видалення кожної. Після видалення нотатки оновлює кеш React Query для показу актуальних даних і відображає повідомлення про успіх або помилку операції.*/
 
 import { useState } from 'react';
 import type { Note } from '../../types/note';
@@ -64,8 +63,6 @@ export default function NoteList({ notes }: NoteListProps) {
                 onClick={() => handleDelete(note.id.toString())}
                 disabled={deleteMutation.isPending}
               >
-                {/*користувач бачить зміну надпису кнопки якщо відбуваеться
-                видалення*/}
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
               </button>
             </div>
