@@ -51,12 +51,17 @@ export async function fetchNotes({
   page = 1,
   perPage = 10,
   search = '',
+  tag,
 }: FetchNotesParams): Promise<FetchNotesResponse> {
   const params: Record<string, string | number> = {
     page,
     perPage,
     search,
   };
+  // Додаємо тег тільки якщо він переданий
+  if (tag) {
+    params.tag = tag;
+  }
 
   const res = await axios.get<FetchNotesResponse>(`${BASE_URL}/notes`, {
     params,
