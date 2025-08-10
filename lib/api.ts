@@ -7,7 +7,9 @@ import type { AxiosError } from 'axios';
 // Токен авторизації
 const NEXT_PUBLIC_NOTEHUB_TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 // Базова URL-адреса бекенду
-const BASE_URL = 'https://notehub-public.goit.study/api';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  'https://notehub-public.goit.study/api';
 
 // Приклад статичного масиву тегів
 export type Tag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
@@ -66,7 +68,7 @@ export async function fetchNotes({
   const res = await axios.get<FetchNotesResponse>(`${BASE_URL}/notes`, {
     params,
     headers: {
-      Authorization: `Bearer ${NEXT_PUBLIC_NOTEHUB_TOKEN}`, // додано токен
+      Authorization: `Bearer ${NEXT_PUBLIC_NOTEHUB_TOKEN}`,
     },
   });
 
