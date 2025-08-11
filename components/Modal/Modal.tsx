@@ -3,6 +3,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import css from '@/components/Modal/Modal.module.css';
 
 type Props = {
   children: React.ReactNode;
@@ -15,28 +16,16 @@ const Modal = ({ children }: Props) => {
   const close = () => router.back();
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          background: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          maxWidth: '500px',
-          width: '100%',
-        }}
-      >
+    <div className={css.backdrop}>
+      <div className={css.modal}>
         {children}
-        <button onClick={close}>Close</button>
+        <button
+          className={css.closeButton}
+          onClick={close}
+          aria-label="Close modal"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
