@@ -2,7 +2,6 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
 import css from '@/components/Modal/Modal.module.css';
 
 type Props = {
@@ -11,22 +10,13 @@ type Props = {
 };
 
 const Modal = ({ children }: Props) => {
-  const router = useRouter();
+  // const router = useRouter();
 
-  const close = () => router.back();
+  // const close = () => router.back();
 
   return (
     <div className={css.backdrop}>
-      <div className={css.modal}>
-        {children}
-        <button
-          className={css.closeButton}
-          onClick={close}
-          aria-label="Close modal"
-        >
-          Close
-        </button>
-      </div>
+      <div className={css.modal}>{children}</div>
     </div>
   );
 };

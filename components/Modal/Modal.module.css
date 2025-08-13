@@ -21,7 +21,7 @@
   box-shadow: 0 5px 15px rgba(14, 13, 13, 0.5);
 }
 
-.closeButton {
+/* .closeButton {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -31,4 +31,4 @@
   font-size: 20px;
   cursor: pointer;
   z-index: 1010;
-}
+} */

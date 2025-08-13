@@ -1,4 +1,5 @@
-/* клієнтський React-компонент TagsMenu, який відображає випадаюче меню тегів для фільтрації нотаток, дозволяє відкривати/закривати список тегів і підсвічує активний тег.*/
+ /* клієнтський React-компонент TagsMenu, який відображає випадаюче меню тегів для фільтрації нотаток, дозволяє відкривати/закривати список тегів і підсвічує активний тег.*/
+
 
 'use client';
 
@@ -8,17 +9,17 @@ import css from './TagsMenu.module.css';
 
 type Tag = string;
 
-interface TagsMenuProps {
-  tags: Tag[];
-  activeTag: Tag | null;
-  onTagChange: (tag: string | null) => void;
-}
+const allTags: Tag[] = ['All', 'Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
 
-export const TagsMenu: React.FC<TagsMenuProps> = ({ tags, activeTag }) => {
+export const TagsMenu = () => {
+  const [activeTag, setActiveTag] = useState<Tag>('All');
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleMenu = () => setIsOpen((prev) => !prev);
-  const closeMenu = () => setIsOpen(false);
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = (tag: Tag) => {
+    setActiveTag(tag);
+    setIsOpen(false);
+  };
 
   return (
     <div className={css.menuContainer}>
@@ -34,11 +35,11 @@ export const TagsMenu: React.FC<TagsMenuProps> = ({ tags, activeTag }) => {
 
       {isOpen && (
         <ul className={css.menuList}>
-          {tags.map((tag) => (
+          {allTags.map((tag) => (
             <li key={tag} className={css.menuItem}>
               <Link
                 href={`/notes/filter/${tag}`}
-                onClick={closeMenu}
+                onClick={() => closeMenu(tag)}
                 className={`${css.menuLink} ${activeTag === tag ? css.active : ''}`}
               >
                 {tag}

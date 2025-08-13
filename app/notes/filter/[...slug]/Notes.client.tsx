@@ -1,4 +1,4 @@
-/*клієнтський React-компонент NotesClient, який реалізує інтерфейс для перегляду, пошуку, пагінації та створення нотаток. Він завантажує список нотаток з сервера з урахуванням сторінки, пошукового запиту і тегу, показує індикатор завантаження, обробляє помилки, відкриває форму створення нотатки у модальному вікні та підтримує debounce для пошуку.*/
+/*клієнтський React-компонент, забезпечує інтерфейс для роботи з нотатками: перегляд, пошук, пагінація, створення нових нотаток.*/
 
 'use client';
 
@@ -13,29 +13,34 @@ import Modal from '@/components/Modal/Modal';
 import Pagination from '@/components/Pagination/Pagination';
 import Loader from '@/components/Loader/Loader';
 import css from './page.module.css';
-import { Tag } from '@/lib/api'; // або звідки у тебе оголошений тип
+import { Tag } from '@/lib/api';
 
 const PER_PAGE = 10;
 const MIN_LOADING_TIME = 100;
 
 interface NotesClientProps {
-  initialNotes?: FetchNotesResponse;
+  initialNotes: FetchNotesResponse;
   tag: Tag | null;
-  tags?: string[];
-  notes?: string;
 }
 
 export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [inputValue, setInputValue] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
 
-  const updateSearchQuery = useDebouncedCallback((newSearchQuery: string) => {
-    setSearchQuery(newSearchQuery);
+  const [showLoader, setShowLoader] = useState(false);
+
+  const debouncedSetSearchQuery = useDebouncedCallback((value: string) => {
+    setSearchQuery(value);
     setCurrentPage(1);
   }, 300);
 
+  const handleSearchChange = (value: string) => {
+    setInputValue(value);
+    debouncedSetSearchQuery(value);
+  };
+  //завантаження нотаток через бібліотеку TanStack Query
   const { data, isLoading, isError, isSuccess } = useQuery<
     FetchNotesResponse,
     Error
@@ -53,8 +58,7 @@ export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
     initialData:
       currentPage === 1 && searchQuery === '' ? initialNotes : undefined,
   });
-
-  // Мінімальний час відображення лоадера
+  //  керування показом індикатора завантаження
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
@@ -66,12 +70,12 @@ export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
 
     return () => clearTimeout(timeoutId);
   }, [isLoading]);
-
+  // пагінація
   const handlePageChange = (selected: number) => setCurrentPage(selected);
+  // відкриття,закриття модального вікна для створення нотатки
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
-  // Закриття модалки по Escape
+  //  закриття модалки клавішею Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal();
@@ -84,11 +88,13 @@ export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isModalOpen]);
-
+  // рендер компоненту
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
+        {/* пошукове поле */}
+        <SearchBox value={inputValue} onSearch={handleSearchChange} />
+        {/* пагінація, якщо більше 1 сторінки */}
         {!showLoader && isSuccess && data?.totalPages > 1 && (
           <Pagination
             pageCount={data.totalPages}
@@ -96,28 +102,33 @@ export default function NotesClient({ initialNotes, tag }: NotesClientProps) {
             onPageChange={handlePageChange}
           />
         )}
+        {/* кнопка створення нотатки */}
         <button className={css.button} onClick={openModal}>
           Create Note +
         </button>
       </header>
-
+      {/* індикатор завантаження */}
       {showLoader && <Loader message="Interesting notes..." />}
+      {/* повідомлення про помилку */}
       {!showLoader && isError && (
         <Loader
           message="There was a problem loading the enchanted notes"
           color="#D62727"
         />
       )}
+      {/* список нотаток */}
       {!showLoader && isSuccess && data?.notes.length > 0 && (
         <NoteList notes={data.notes} />
       )}
+
+      {/* повідомлення про відсутність результатів пошуку */}
       {!showLoader &&
         isSuccess &&
         data?.notes.length === 0 &&
         searchQuery.trim() !== '' && (
           <p className={css.noResults}>Notation not found after the search</p>
         )}
-
+      {/* модальне вікно з формою створення нотатки */}
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <NoteForm onClose={closeModal} />

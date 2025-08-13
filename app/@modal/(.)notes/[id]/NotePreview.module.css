@@ -53,3 +53,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #464242;
+  border: none;
+  border-radius: 4px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1010;
+}
