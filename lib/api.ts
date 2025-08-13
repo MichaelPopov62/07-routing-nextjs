@@ -3,6 +3,7 @@
 import axios from 'axios';
 
 import type { AxiosError } from 'axios';
+import type { Note } from '@/types/note';
 
 // Токен авторизації
 const NEXT_PUBLIC_NOTEHUB_TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
@@ -13,15 +14,6 @@ const BASE_URL =
 
 // Приклад статичного масиву тегів
 export type Tag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: Tag;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 export const tags: Tag[] = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
 
@@ -44,8 +36,8 @@ export interface DataNewNotes {
 export interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
-  tag: string;
-  tags: string;
+  tag?: Tag;
+  tags?: Tag[];
 }
 
 // Функція отримання нотаток з бекенду
@@ -72,12 +64,11 @@ export async function fetchNotes({
     },
   });
 
-  return {
-    notes: res.data.notes,
-    totalPages: res.data.totalPages ?? 1,
-    tag: res.data.tag,
-    tags: res.data.tags,
-  };
+  return res.data;
+  // notes: res.data.notes,
+  // totalPages: res.data.totalPages ?? 1,
+  // tag: res.data.tag,
+  // tags: res.data.tags,
 }
 
 // Функція отримання нотатки за ID
